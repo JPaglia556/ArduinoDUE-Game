@@ -3,13 +3,14 @@
 #include <U8g2lib.h>
 #include <U8x8lib.h>
 
+// initialize display using U8G2 library
 U8G2_SSD1309_128X64_NONAME0_1_4W_SW_SPI u8g2(U8G2_R0, 9, 10, 11, 12 ,13);
  int linepos = 128;
  int tob = 0;
  int eol = 0;
  int boxpos = 0;
  int linecheck = 0;
- int difficulty = 16;
+ int difficulty = 16;  // decrease to start at higher difficulty
  int score = 0;
 void setup() {
   pinMode(2, INPUT);
@@ -20,12 +21,15 @@ void setup() {
 void loop() {
   // read the state of the pushbutton value:
   int z = digitalRead(2);
-  if (score%200 == 0 && difficulty != 1) {
+  if (score%200 == 0 && difficulty != 1) { // slowly increases difficulty
     difficulty = difficulty - 1;
   }
+  
+  // hit detection for box hitting wall
   if(linecheck == boxpos) {
     if (linepos < 28 && linepos > 3) {
       u8g2.firstPage();
+  // Display game over screen with final score
   do {
     u8g2.setFont(u8g2_font_ncenB14_tr);
     u8g2.drawStr(0,15,"GAME OVER");
@@ -48,6 +52,8 @@ void loop() {
      delay(1000);
     }
   }
+  
+  // detects when the current wall hits the end of the display and randomizes the next wall
   if (eol == 1) {
     tob = random(0,2);
     if (tob == 0) {
@@ -65,12 +71,12 @@ void loop() {
     linepos = 128;
     eol = 1;
   }
+  // move wall to the left
   else {
     linepos = linepos - 4;
   }
 
   if (z == 0) {
-    // turn LED on:
      u8g2.firstPage();
   do {
 
@@ -84,7 +90,7 @@ void loop() {
    else {
       u8g2.firstPage();
   do {
-
+    // Draws the box and walls on the display
     u8g2.drawBox(3,7,25,15);
     u8g2.drawLine(linepos, tob, linepos, 32);
     boxpos = 0;
